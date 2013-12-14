@@ -59,7 +59,11 @@ module UseCase
     end
 
     def perform;  end
-    def rollback; end 
+    def rollback; end
+
+    def failure(key, value)
+      @context.failure(key, value)
+    end
     
   end
 end

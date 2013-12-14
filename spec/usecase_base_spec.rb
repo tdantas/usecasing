@@ -101,7 +101,8 @@ describe UseCase::Base do
   end
 
   context '##perfoms execution chain' do 
-    it 'executes in lexical order' do
+    it 'executes in lexical order cascading context among usecases' do
+      
       FirstUseCase = Class.new(UseCase::Base) do 
         def perform
           context.first = context.first_arg
@@ -121,6 +122,39 @@ describe UseCase::Base do
       ctx = UseCaseChain.perform({:first_arg => 1, :second_arg => 2})
       expect(ctx.first).to  eql(1)
       expect(ctx.second).to eql(2)
+    end
+
+
+    it 'stops the flow when failure happen' do 
+
+      FirstUseCaseFailure = Class.new(UseCase::Base) do 
+        def perform
+          context.first = context.first_arg
+        end
+      end
+      
+      SecondUseCaseFailure = Class.new(UseCase::Base) do 
+        
+        def perform
+          context.second = context.second_arg
+          failure(:second, 'next will not be called')
+        end
+
+      end
+
+      ThirdUseCaseFailure = Class.new(UseCase::Base) do 
+        def perform
+          context.third = true
+        end
+      end
+
+      UseCaseFailure = Class.new(UseCase::Base) do
+        depends FirstUseCaseFailure, SecondUseCaseFailure, ThirdUseCaseFailure
+      end
+
+      #ThirdUseCaseFailure.any_instance.expects(:perform).never
+      UseCaseFailure.perform
+      
     end
   end
 

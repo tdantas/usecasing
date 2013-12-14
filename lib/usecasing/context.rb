@@ -27,7 +27,6 @@ module UseCase
       @errors.push({ key => value })
     end
 
-
     private
       def setter?(method)
         !! ((method.to_s) =~ /=$/)
