@@ -8,45 +8,35 @@ module UseCase
     end
 
     def dependencies
-      return [] unless superclass.ancestors.include?(UseCase::Base)
+      return [] unless superclass.ancestors.include? UseCase::Base
       value = (@dependencies && @dependencies.dup || []).concat(superclass.dependencies)
-      value.reverse
+      value
     end
 
     def perform(context = {})
       context = Context.new(context)
-      execution_order = Array.new
-      tx(context, execution_order) do 
-        dependencies_inception(self, context, execution_order, {})
+      execution_order = build_execution_order(self, {})
+      execution_order.each do |usecase|
+        break unless context.success?
+        usecase.new(context).perform 
       end
+
       context
     end
 
     private
 
-    def tx(watchable, execution_order, &block)
-      block.call
-      rollback(execution_order, watchable) unless watchable.success?
-    end
+    def build_execution_order(start_point, visited)
+      raise StandardError.new("cyclic detected: #{start_point} in #{self}") if visited[start_point]
+      visited[start_point] = true
+      return [start_point] if start_point.dependencies.empty?
 
-    def rollback(order, context)
-      order.reverse.each do |klass|
-        klass.new(context).rollback
+      start_point.dependencies.each do |point|
+        build_execution_order(point, visited).unshift point
       end
-    end
 
-    def dependencies_inception(dependency_klass, context, execution_order, visited = {})
-      return unless context.success?
-      raise StandardError.new("cyclic detected: #{dependency_klass} in #{self}") if visited[dependency_klass]
-      visited[dependency_klass] = true
-      
-      dependency_klass.dependencies.each do |klass|
-        dependencies_inception(klass, context, execution_order, visited)
-      end
-      execution_order.push dependency_klass
-      dependency_klass.new(context).perform
     end
-
+    
   end
 
 

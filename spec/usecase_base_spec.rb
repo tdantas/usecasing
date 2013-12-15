@@ -19,7 +19,7 @@ describe UseCase::Base do
     end
 
 
-    it 'subclass adds dependency from superclass to subclass' do
+    it 'subclass adds dependency from subclass to superclass' do
 
       SuperClassDependency =  Class.new(UseCase::Base)
       UseCaseSuperClass = Class.new(UseCase::Base) do 
@@ -31,9 +31,9 @@ describe UseCase::Base do
         depends SubClassDependency
       end
 
-      expect(UseCaseSubClass.dependencies).to eql([SuperClassDependency, SubClassDependency])
+      expect(UseCaseSubClass.dependencies).to eql([SubClassDependency, SuperClassDependency])
       #idempotent operation
-      expect(UseCaseSubClass.dependencies).to eql([SuperClassDependency, SubClassDependency])
+      expect(UseCaseSubClass.dependencies).to eql([SubClassDependency, SuperClassDependency])
 
     end
 
@@ -54,11 +54,13 @@ describe UseCase::Base do
     end
 
     it 'receives receives a hash and create a execution context' do 
+
       SendEmailUseCase = Class.new(UseCase::Base) do 
         def perform
           context.sent = 'sent'
         end
       end
+
       ctx = SendEmailUseCase.perform({email: 'thiago.teixeira.dantas@gmail.com' })
       expect(ctx.sent).to eql('sent')
       expect(ctx.email).to eql('thiago.teixeira.dantas@gmail.com')
@@ -87,7 +89,6 @@ describe UseCase::Base do
 
       CyclicFirst.instance_eval do
         depends CyclicSecond
-        puts self.dependencies
       end
 
       FinalUseCase = Class.new(UseCase::Base) do 
@@ -152,7 +153,7 @@ describe UseCase::Base do
         depends FirstUseCaseFailure, SecondUseCaseFailure, ThirdUseCaseFailure
       end
 
-      #ThirdUseCaseFailure.any_instance.expects(:perform).never
+      ThirdUseCaseFailure.any_instance.expects(:perform).never
       UseCaseFailure.perform
       
     end
