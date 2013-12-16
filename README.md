@@ -23,7 +23,7 @@ So the product owner will create some usecases/stories to YOU.
 Imagine this usecase/story:
 
 ````
-	As a user I want to finalize an Invoice and an email should be delivered to the customer.
+As a user I want to finalize an Invoice and an email should be delivered to the customer.
 
 ````
 
