@@ -1,6 +1,5 @@
 # UseCase your code
 
-TODO: Write a gem description
 
 ## Installation
 
@@ -140,7 +139,9 @@ Oww, yeah, let's notify the customer
 
 Let me know what do you think about it.
 
-
+#### TODO
+ 
+ Create real case examples (40%)
 
 
 
