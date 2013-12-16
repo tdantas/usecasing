@@ -24,7 +24,6 @@ Imagine this usecase/story:
 
 ````
 As a user I want to finalize an Invoice and an email should be delivered to the customer.
-
 ````
 
 Let's build a controller
@@ -52,8 +51,8 @@ Let's build a controller
 
 Ok, What is FinalizeInvoiceUseCase ?
 
-FinalizeInvoiceUseCase will be responsible for Satisfy the Use Case/Story.  
-Each usecase should satisfy the [Single Responsability Principle](http://en.wikipedia.org/wiki/Single_responsibility_principle) and to achieve this principle, one usecase could depends of others usecases building a Chain of Resposability.
+FinalizeInvoiceUseCase will be responsible for perform the Use Case/Story.  
+Each usecase should satisfy the [Single Responsability Principle](http://en.wikipedia.org/wiki/Single_responsibility_principle) and to achieve this principle, one usecase depends of others usecases building a Chain of Resposability.
 
 
 ````
@@ -67,7 +66,7 @@ Each usecase should satisfy the [Single Responsability Principle](http://en.wiki
 IMHO, when I read this Chain I really know what this class will do.   
 astute readers will ask: How FindInvoice pass values to ValidateToFinalize ?
 
-When we call in the Controller FinalizeInvoiceUseCase.perform we pass a parameter (Hash) to the usecase.
+When we call in the Controller *FinalizeInvoiceUseCase.perform* we pass a parameter (Hash) to the usecase.
 
 This is what we call context, the usecase context will be shared between all chain.
 
