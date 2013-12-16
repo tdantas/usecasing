@@ -1,17 +1,5 @@
 require 'spec_helper'
 
-
-# initialize without parameters OK
-# initialize with parameters    OK
-# initialization expects a hash OK 
-# initalize hash with symbol and string keys
-
-# create dynamic getters and setters
-# failure the context
-# success the context
-# use [] method to retrieve values
-
-
 describe UseCase::Context do 
 
 
