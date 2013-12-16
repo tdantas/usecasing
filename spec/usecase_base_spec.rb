@@ -95,7 +95,7 @@ describe UseCase::Base do
         depends CyclicSecond
       end
 
-      expect { FinalUseCase.perform }.to raise_error(StandardError)
+      expect { FinalUseCase.perform }.to raise_error(StandardError, /cyclic detected/)
 
     end
    
@@ -170,6 +170,99 @@ describe UseCase::Base do
       InstanceUseCase.new(ctx).perform
       expect(ctx.executed).to be_true
     end 
+  end
+
+
+  context 'rolling back the flow' do
+
+    it 'rollback without dependencies' do
+
+      UseCaseWithRollback = Class.new(UseCase::Base) do
+
+        def perform
+          failure(:rollback, 'must be called')
+        end
+
+        def rollback
+          context.rollback_executed = 'true'
+        end
+
+      end
+
+      context = UseCaseWithRollback.perform
+      expect(context.rollback_executed).to eql('true')
+
+    end
+
+    it 'in reverse order of execution' do
+      order = 0
+      
+      UseCaseWithRollbackOrderDepdens = Class.new(UseCase::Base) do 
+        define_method :rollback do
+          order += 1
+          context.first_rollback = order
+        end
+
+      end
+
+      UseCaseWithRollbackOrder = Class.new(UseCase::Base) do
+        depends UseCaseWithRollbackOrderDepdens
+
+        def perform
+          failure(:rollback, 'error')
+        end
+
+        define_method :rollback do 
+          order += 1
+          context.second_rollback = order
+        end
+      end
+
+      context = UseCaseWithRollbackOrder.perform
+      expect(context.first_rollback).to  eql(1)
+      expect(context.second_rollback).to  eql(2)
+    end
+
+
+    it 'only rollbacks usecase that ran' do 
+      
+      UseCaseFailRanThird = Class.new(UseCase::Base) do 
+ 
+        def rollback
+          context.should_not_appear = 'true'
+        end
+
+      end
+
+      UseCaseFailRanSecond = Class.new(UseCase::Base) do 
+        
+        def perform
+          failure(:rollback, 'error')
+        end
+
+
+        def rollback
+          context.rollback_second 'true_2'
+        end
+
+      end      
+
+      UseCaseFailRanFirst = Class.new(UseCase::Base) do 
+
+        def rollback
+          context.rollback_first = 'true_1'
+        end
+
+      end
+
+      UseCaseFailRan = Class.new(UseCase::Base) do
+        depends UseCaseFailRanFirst, UseCaseFailRanSecond, UseCaseFailRanThird
+      end
+
+      context = UseCaseFailRan.perform
+      expect(context.should_not_appear).to be_nil
+
+    end
   end
 
 end
