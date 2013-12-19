@@ -3,6 +3,8 @@
 
 ## Installation
 
+[![Build Status](https://secure.travis-ci.org/tdantas/usecasing.png)](http://travis-ci.org/tdantas/usecasing)
+
 Add this line to your application's Gemfile:
 
 I did not (YET) upload this code to the rubygems.   
