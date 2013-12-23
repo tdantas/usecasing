@@ -7,10 +7,7 @@
 
 Add this line to your application's Gemfile:
 
-I did not (YET) upload this code to the rubygems.   
-To early adopters use the :git path
-
-    gem 'usecasing', :git => 'https://github.com/tdantas/usecasing.git'
+  	gem 'usecasing'
 
 And then execute:
 
