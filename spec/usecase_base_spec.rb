@@ -226,28 +226,28 @@ describe UseCase::Base do
 
     it 'only rollbacks usecase that ran' do 
       
-      UseCaseFailRanThird = Class.new(UseCase::Base) do 
- 
+      UseCaseFailRanThird = Class.new(UseCase::Base) do
+
         def rollback
-          context.should_not_appear = 'true'
+          context.rollback_third = 'true'
         end
 
       end
 
       UseCaseFailRanSecond = Class.new(UseCase::Base) do 
         
-        def perform
-          failure(:rollback, 'error')
-        end
-
-
         def rollback
-          context.rollback_second 'true_2'
+          context.rollback_second = 'true_2'
         end
 
       end      
 
       UseCaseFailRanFirst = Class.new(UseCase::Base) do 
+        depends UseCaseFailRanSecond
+
+        def perform
+          failure(:rollback, 'error')
+        end
 
         def rollback
           context.rollback_first = 'true_1'
@@ -256,13 +256,16 @@ describe UseCase::Base do
       end
 
       UseCaseFailRan = Class.new(UseCase::Base) do
-        depends UseCaseFailRanFirst, UseCaseFailRanSecond, UseCaseFailRanThird
+        depends UseCaseFailRanFirst, UseCaseFailRanThird
       end
 
       context = UseCaseFailRan.perform
-      expect(context.should_not_appear).to be_nil
+      expect(context.rollback_third).to_not be
+      expect(context.rollback_second).to be
+      expect(context.rollback_first).to be
 
     end
+
   end
 
 end
