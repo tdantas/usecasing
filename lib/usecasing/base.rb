@@ -20,14 +20,12 @@ module UseCase
       end
 
       def perform(ctx = { })
-        any_ciclic, ciclic = CyclicFinder.new(self).cyclic?
-        raise StandardError.new("cyclic detected: #{ciclic}") if any_ciclic
-        execution_order = [] 
-        build_execution_order(self, execution_order)
-        tx(execution_order, ctx) do |usecase, context| 
+        tx(ExecutionOrder.run(self), ctx) do |usecase, context| 
           usecase.new(context).perform 
         end
       end
+
+      private
 
       def tx(execution_order, context)
         ctx = Context.new(context)
@@ -47,35 +45,6 @@ module UseCase
         end
         context
       end
-
-      def build_execution_order(node, result)
-        return result.push(node) if node.dependencies.empty?
-        
-        node.dependencies.each do |item|
-          build_execution_order(item, result)
-        end
-
-        result.push(node)
-      end
-
-      # def build_execution_order
-      #   stack = [self]
-      #   result  = []
-      #   visited = {}
-        
-      #   until stack.empty?
-      #     node = stack.last
-      #     if(node.dependencies.empty? || visited[node.name])
-      #       result.push(stack.pop)
-      #     else
-      #       stack.push(*(node.dependencies.reverse))
-      #       visited[node.name] = true
-      #     end
-      #   end
-
-      #   return result
-
-      # end
 
     end #ClassMethods
   end #BaseClassMethod
