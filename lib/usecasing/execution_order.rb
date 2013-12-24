@@ -35,13 +35,6 @@ module UseCase
       @nodes       = discover_nodes
     end
 
-    def tsort_each_node(&block)
-      @nodes.each &block
-    end
-
-    def tsort_each_child(node, &block)
-      node.dependencies.each &block
-    end
 
     def cyclic?
       components = strongly_connected_components
@@ -50,6 +43,15 @@ module UseCase
     end
 
     private
+
+    def tsort_each_node(&block)
+      @nodes.each &block
+    end
+
+    def tsort_each_child(node, &block)
+      node.dependencies.each &block
+    end
+    
     def discover_nodes
       visited = {}
       stack = [@start_point]
