@@ -45,8 +45,7 @@ describe UseCase::Context do
   it 'adds error messages to errors' do 
     context = described_class.new({})
     context.failure(:email, 'email already exist')
-    expect(context.errors.length).to eql(1)
-    expect(context.errors.first).to eql({ email: 'email already exist' })
+    expect(context.errors[:email]).to eql(['email already exist'])
   end
 
   it 'fails when exist errors' do
@@ -54,6 +53,34 @@ describe UseCase::Context do
     context.failure(:email, 'email already exist')
     expect(context.success?).to eql(false)
   end
+
+  it 'returns all messages indexed by key' do 
+    context = described_class.new({})
+    context.failure(:email, 'first')
+    context.failure(:email, 'second')
+    expect(context.errors[:email]).to include('first')
+    expect(context.errors[:email]).to include('second')
+    expect(context.errors[:email].join(",")).to eql("first,second")
+  end
+
+  it 'returns all messages indexed by key' do 
+    context = described_class.new({})
+    context.failure(:email, 'email')
+    context.failure(:base,  'base')
+    expect(context.errors.all("<br>")).to eql('email<br>base')
+  end
+
+   it 'returns all iterate over messages' do 
+    context = described_class.new({})
+    context.failure(:email, 'email')
+    context.failure(:base,  'base')
+    @expected = ""
+    context.errors.all { |message| @expected.concat"<li>#{message}</li>" } 
+    expect(@expected).to eql('<li>email</li><li>base</li>')
+  end
+
+
+
 
 end
 
