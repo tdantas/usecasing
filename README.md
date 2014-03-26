@@ -4,6 +4,8 @@
 ## Installation
 
 [![Build Status](https://secure.travis-ci.org/tdantas/usecasing.png)](http://travis-ci.org/tdantas/usecasing)
+[![Dependency Status](https://gemnasium.com/tdantas/usecasing.svg)](https://gemnasium.com/tdantas/usecasing)
+
 
 Add this line to your application's Gemfile:
 
