@@ -33,10 +33,14 @@ module UseCase
 
     attr_accessor :errors
 
-    def initialize(hash = {})
-      raise ArgumentError.new('Must be a Hash') unless hash.is_a? ::Hash 
-      @values = symbolyze_keys(hash)
+    def initialize(param = {})
+      raise ArgumentError.new('Must be a Hash or other Context') unless (param.is_a? ::Hash) || (param.is_a? Context) 
+      @values = symbolyze_keys(param.to_hash)
       @errors = Errors.new
+    end
+
+    def to_hash
+      @values
     end
 
     def method_missing(method, *args, &block)

@@ -79,8 +79,12 @@ describe UseCase::Context do
     expect(@expected).to eql('<li>email</li><li>base</li>')
   end
 
-
-
+  it 'returns a hash' do 
+    context = described_class.new({})
+    context.name = 'thiago'
+    context.last_name = 'dantas'
+    expect(context.to_hash).to eql({ name: 'thiago' , last_name: 'dantas'})
+  end
 
 end
 

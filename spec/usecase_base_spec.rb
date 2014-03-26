@@ -53,7 +53,7 @@ describe UseCase::Base do
       AppUseCaseInstance.perform
     end
 
-    it 'receives receives a hash and create a execution context' do 
+    it 'receives a hash and create a execution context' do 
 
       SendEmailUseCase = Class.new(UseCase::Base) do 
         def perform
@@ -66,9 +66,19 @@ describe UseCase::Base do
       expect(ctx.email).to eql('thiago.teixeira.dantas@gmail.com')
     end
 
-    it 'must receive an hash' do 
+    it 'raises exception when params is neither context or a hash' do 
       UseCaseArgumentException = Class.new(UseCase::Base)
       expect{ UseCaseArgumentException.perform(Object.new) }.to raise_error(ArgumentError)
+    end
+
+    it 'accepts a hash' do 
+      UseCaseArgumentHash = Class.new(UseCase::Base)
+      expect{ UseCaseArgumentHash.perform({}) }.not_to raise_error
+    end
+
+    it 'accepts other context' do 
+      UseCaseArgumentContext = Class.new(UseCase::Base)
+      expect{ UseCaseArgumentContext.perform(UseCase::Context.new) }.not_to raise_error
     end
 
     it 'with success when usecase do not register failure' do 
