@@ -268,4 +268,26 @@ describe UseCase::Base do
 
   end
 
+
+    describe '#before' do 
+
+      it 'calls "before" method before perform' do
+        BeforeUsecasing = Class.new(UseCase::Base) do 
+          
+          def before
+            context.before = true
+          end
+
+          def perform
+             raise 'Should be called' unless context.before
+          end
+        end
+
+        expected = BeforeUsecasing.perform
+        expect(expected.before).to eql(true)
+
+      end
+      
+    end
+
 end

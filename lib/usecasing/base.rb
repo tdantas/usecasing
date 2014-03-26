@@ -20,8 +20,12 @@ module UseCase
       end
 
       def perform(ctx = { })
-        tx(ExecutionOrder.run(self), ctx) do |usecase, context| 
-          usecase.new(context).perform 
+        tx(ExecutionOrder.run(self), ctx) do |usecase, context|
+          instance = usecase.new(context)
+          instance.tap do | me |
+            me.before
+            me.perform
+          end 
         end
       end
 
@@ -58,6 +62,7 @@ module UseCase
       @context = context
     end
 
+    def before;  end
     def perform;  end
     def rollback; end
 
