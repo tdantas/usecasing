@@ -19,8 +19,9 @@ Gem::Specification.new do |gem|
 
 
   #development dependecy
-  gem.add_development_dependency "rspec"
-  gem.add_development_dependency "rake"
-  gem.add_development_dependency "mocha"
-  
+  gem.add_development_dependency "rspec",'~> 2.14.1'
+  gem.add_development_dependency "rake", '~> 10.1'
+  gem.add_development_dependency "mocha",'~> 1.0.0'
+  gem.add_development_dependency "coveralls", '~> 0.7'
+
 end
