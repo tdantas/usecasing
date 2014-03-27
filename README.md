@@ -72,14 +72,15 @@ This is what we call context, the usecase context will be shared between all cha
 
 ````
 	class FindInvoice < UseCase::Base
+	
+		def before
+			@user = context.curent_user
+		end
 		
 		def perform
 		
-			# available because it was added in the controller context 
-			user = context.current_user 
-			
 			# we could do that in one before_filter
-			invoice = user.invoices.find(context.invoice_id)
+			invoice = @user.invoices.find(context.invoice_id)
 			
 			# asign to the context make available to all chain
 			context.invoice = invoice
@@ -113,9 +114,12 @@ So, after validate, we already know that the invoice exists and it is ready to b
 ````
 	class FinalizeInvoice < UseCase::Base
 		
+		def before
+			@invoice = context.invoice
+		end
+		
 		def perform
-			invoice = context.invoice
-			invoice.finalize! #update database with finalize state
+			@invoice.finalize! #update database with finalize state
 			context.customer = invoice.customer
 		end
 	
