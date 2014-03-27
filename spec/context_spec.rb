@@ -86,5 +86,20 @@ describe UseCase::Context do
     expect(context.to_hash).to eql({ name: 'thiago' , last_name: 'dantas'})
   end
 
+  it "iterates successfully over errors" do
+    context = described_class.new({})
+    context.failure(:error_1, "this is the first error")
+    context.failure(:error_2, "this is a second error")
+
+    errors_keys = [];
+    errors_values = [];
+    context.errors.each  do |k, v| 
+      errors_keys << k
+      errors_values << v;
+    end
+
+    expect(errors_keys).to eql([:error_1, :error_2])
+    expect(errors_values).to eql([["this is the first error"], ["this is a second error"]])
+  end
 end
 

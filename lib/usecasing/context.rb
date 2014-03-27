@@ -29,6 +29,10 @@ module UseCase
         @errors.keys.empty?
       end
 
+      def each(&block)
+        @errors.each(&block)
+      end
+
     end
 
     attr_accessor :errors
