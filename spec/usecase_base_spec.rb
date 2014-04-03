@@ -278,6 +278,39 @@ describe UseCase::Base do
 
   end
 
+  context 'stoping the flow' do
+    it 'stops execution' do
+      FirstCase = Class.new(UseCase::Base) do 
+        def perform
+          context.name = "Gandalf"
+        end
+      end
+
+      StopCase = Class.new(UseCase::Base) do 
+        def perform
+          context.result = "YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!"
+          stop!
+        end
+      end
+
+      UnachievableCase = Class.new(UseCase::Base) do
+        def perform
+          context.result = "Still here! Muahaha!"
+        end 
+      end
+
+      Base = Class.new(UseCase::Base) do 
+        depends FirstCase, StopCase, UnachievableCase
+      end
+
+      usecase = Base.perform
+      
+      expect(usecase.name).to eq("Gandalf")
+      expect(usecase.result).to eq("YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!")
+      expect(usecase.success?).to be(true)
+    end
+  end
+
 
     describe '#before' do 
 

@@ -36,32 +36,4 @@ describe UseCase::ExecutionOrder do
       expect(UseCase::ExecutionOrder.run(EOCreate)).to eql([EORepeatedSMS, EOAlert, EORepeatedSMS, EOCreate])
     end
   end
-
-  context 'with stop' do
-    it 'stops execution' do
-      EODepdency1 = Class.new(UseCase::Base)
-
-      EODepdencyWhichStops = Class.new(UseCase::Base) do 
-        def perform
-          context.result = "YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!"
-          stop!
-        end
-      end
-
-      EODepdency2 = Class.new(UseCase::Base) do
-        def perform
-          context.result = "Still here! Muahaha!"
-        end 
-      end
-
-      EODependent = Class.new(UseCase::Base) do 
-        depends EODepdency1, EODepdencyWhichStops, EODepdency2
-      end
-
-      expect(UseCase::ExecutionOrder.run(EODependent)).to eql([EODepdency1, EODepdencyWhichStops, EODepdency2, EODependent])
-      expect(EODependent.perform.result).to eq("YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!")
-      expect(EODependent.perform.success?).to be(true)
-    end
-  end
-
 end
