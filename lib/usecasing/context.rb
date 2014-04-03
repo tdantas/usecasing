@@ -35,7 +35,7 @@ module UseCase
 
     end
 
-    attr_accessor :errors
+    attr_accessor :errors, :stopped
 
     def initialize(param = {})
       raise ArgumentError.new('Must be a Hash or other Context') unless (param.is_a? ::Hash) || (param.is_a? Context) 
@@ -58,6 +58,14 @@ module UseCase
 
     def success?
       @errors.empty?
+    end
+
+    def stop!
+      @stopped = true
+    end
+
+    def stopped?
+      @stopped
     end
 
     def failure(key, value)
