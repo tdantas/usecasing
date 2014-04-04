@@ -313,11 +313,11 @@ describe UseCase::Base do
       expect(lord_of_the_rings_context.wizzard_name).to eq("Gandalf")
     end
 
-    it 'returns variables inserted by first dependency' do
+    it 'doesn not have variables inserted by unachievable case' do
       expect(lord_of_the_rings_context.result).to eq("YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!")
     end
 
-    it 'returns variables inserted by first dependency' do
+    it 'is successfull' do
       expect(lord_of_the_rings_context.success?).to be(true)
     end
   end
