@@ -279,7 +279,6 @@ describe UseCase::Base do
   end
 
   context 'stoping the flow' do
-    attr_accessor :lord_of_the_rings_context
 
       FirstCase = Class.new(UseCase::Base) do 
         def perform
@@ -310,15 +309,15 @@ describe UseCase::Base do
     end
 
     it 'returns variables inserted by first dependency' do
-      expect(lord_of_the_rings_context.wizzard_name).to eq("Gandalf")
+      expect(@lord_of_the_rings_context.wizzard_name).to eq("Gandalf")
     end
 
     it 'does not have variables inserted by unachievable case' do
-      expect(lord_of_the_rings_context.result).to eq("YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!")
+      expect(@lord_of_the_rings_context.result).to eq("YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!")
     end
 
     it 'is successfull' do
-      expect(lord_of_the_rings_context.success?).to be(true)
+      expect(@lord_of_the_rings_context.success?).to be(true)
     end
   end
 
