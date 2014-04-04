@@ -279,10 +279,11 @@ describe UseCase::Base do
   end
 
   context 'stoping the flow' do
-    it 'stops execution' do
+    attr_accessor :lord_of_the_rings_context
+
       FirstCase = Class.new(UseCase::Base) do 
         def perform
-          context.name = "Gandalf"
+          context.wizzard_name = "Gandalf"
         end
       end
 
@@ -303,11 +304,21 @@ describe UseCase::Base do
         depends FirstCase, StopCase, UnachievableCase
       end
 
-      usecase = Base.perform
-      
-      expect(usecase.name).to eq("Gandalf")
-      expect(usecase.result).to eq("YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!")
-      expect(usecase.success?).to be(true)
+
+    before(:each) do
+      @lord_of_the_rings_context = Base.perform
+    end
+
+    it 'returns variables inserted by first dependency' do
+      expect(lord_of_the_rings_context.wizzard_name).to eq("Gandalf")
+    end
+
+    it 'returns variables inserted by first dependency' do
+      expect(lord_of_the_rings_context.result).to eq("YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!")
+    end
+
+    it 'returns variables inserted by first dependency' do
+      expect(lord_of_the_rings_context.success?).to be(true)
     end
   end
 
