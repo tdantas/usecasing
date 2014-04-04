@@ -313,7 +313,7 @@ describe UseCase::Base do
       expect(lord_of_the_rings_context.wizzard_name).to eq("Gandalf")
     end
 
-    it 'doesn not have variables inserted by unachievable case' do
+    it 'does not have variables inserted by unachievable case' do
       expect(lord_of_the_rings_context.result).to eq("YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!")
     end
 
