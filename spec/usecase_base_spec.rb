@@ -303,20 +303,18 @@ describe UseCase::Base do
       depends FirstCase, StopCase, UnachievableCase
     end
 
-    before(:each) do
-      @lord_of_the_rings_context = Base.perform
-    end
+    let(:subject) { Base.perform }
 
     it 'returns variables inserted by first dependency' do
-      expect(@lord_of_the_rings_context.wizzard_name).to eq("Gandalf")
+      expect(subject.wizzard_name).to eq("Gandalf")
     end
 
     it 'does not have variables inserted by unachievable case' do
-      expect(@lord_of_the_rings_context.result).to eq("YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!")
+      expect(subject.result).to eq("YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!")
     end
 
     it 'is successfull' do
-      expect(@lord_of_the_rings_context.success?).to be_true
+      expect(subject.success?).to be_true
     end
   end
 
