@@ -278,7 +278,7 @@ describe UseCase::Base do
 
   end
 
-  context 'stoping the flow' do
+  context 'stopping the flow' do
 
       FirstCase = Class.new(UseCase::Base) do 
         def perform
@@ -317,7 +317,7 @@ describe UseCase::Base do
     end
 
     it 'is successfull' do
-      expect(@lord_of_the_rings_context.success?).to be(true)
+      expect(@lord_of_the_rings_context.success?).to be_true
     end
   end
 

@@ -67,7 +67,7 @@ module UseCase
     def rollback; end
 
     def stop!
-     context.stop! 
+      context.stop! 
     end
 
     def failure(key, value)
