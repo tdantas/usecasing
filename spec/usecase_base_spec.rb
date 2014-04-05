@@ -280,29 +280,28 @@ describe UseCase::Base do
 
   context 'stopping the flow' do
 
-      FirstCase = Class.new(UseCase::Base) do 
-        def perform
-          context.wizzard_name = "Gandalf"
-        end
+    FirstCase = Class.new(UseCase::Base) do 
+      def perform
+        context.wizzard_name = "Gandalf"
       end
+    end
 
-      StopCase = Class.new(UseCase::Base) do 
-        def perform
-          context.result = "YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!"
-          stop!
-        end
+    StopCase = Class.new(UseCase::Base) do 
+      def perform
+        context.result = "YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!"
+        stop!
       end
+    end
 
-      UnachievableCase = Class.new(UseCase::Base) do
-        def perform
-          context.result = "Still here! Muahaha!"
-        end 
-      end
+    UnachievableCase = Class.new(UseCase::Base) do
+      def perform
+        context.result = "Still here! Muahaha!"
+      end 
+    end
 
-      Base = Class.new(UseCase::Base) do 
-        depends FirstCase, StopCase, UnachievableCase
-      end
-
+    Base = Class.new(UseCase::Base) do 
+      depends FirstCase, StopCase, UnachievableCase
+    end
 
     before(:each) do
       @lord_of_the_rings_context = Base.perform
