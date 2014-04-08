@@ -65,7 +65,7 @@ module UseCase
     end
 
     def stopped?
-      @stopped
+      !!@stopped
     end
 
     def failure(key, value)
