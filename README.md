@@ -141,6 +141,44 @@ Oww, yeah, let's notify the customer
 	end
 ````
 
+#### Stopping the UseCase dependencies Flow
+
+There are 2 ways to stop the dependency flow.  
+  - stop! ( stop the flow without marking the usecase with error )
+  - failure ( stop the flow but mark the usecase with errors )
+  
+
+Imagine a Read Through Cache Strategy.
+How can we stop the usecase flow without marking as failure ?
+
+````
+   class ReadThrough < UseCase::Base
+      depends MemCacheReader, DataBaseReader, MemCacheWriter
+   end
+  
+   class MemCacheReader < UseCase::Base
+     def perform
+       context.data = CacheAdapter.read('key')
+       stop! if context.data
+     end
+   end
+
+   class DataBaseReader < UseCase::Base
+     def perform
+       context.data = DataBase.find('key')
+     end
+   end
+   
+   class MemCacheWriter < UseCase::Base
+     def perform
+       CacheAdapter.write('key', context.data);
+     end
+   end
+
+````
+
+
+
 
 Let me know what do you think about it.
 
