@@ -60,6 +60,14 @@ module UseCase
       @errors.empty?
     end
 
+    def stop!
+      @stopped = true
+    end
+
+    def stopped?
+      !!@stopped
+    end
+
     def failure(key, value)
       @errors.push(key, value)
     end

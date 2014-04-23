@@ -278,6 +278,46 @@ describe UseCase::Base do
 
   end
 
+  context 'stopping the flow' do
+
+    FirstCase = Class.new(UseCase::Base) do 
+      def perform
+        context.wizzard_name = "Gandalf"
+      end
+    end
+
+    StopCase = Class.new(UseCase::Base) do 
+      def perform
+        context.result = "YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!"
+        stop!
+      end
+    end
+
+    UnachievableCase = Class.new(UseCase::Base) do
+      def perform
+        context.result = "Still here! Muahaha!"
+      end 
+    end
+
+    Base = Class.new(UseCase::Base) do 
+      depends FirstCase, StopCase, UnachievableCase
+    end
+
+    let(:subject) { Base.perform }
+
+    it 'returns variables inserted by first dependency' do
+      expect(subject.wizzard_name).to eq("Gandalf")
+    end
+
+    it 'does not have variables inserted by unachievable case' do
+      expect(subject.result).to eq("YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!")
+    end
+
+    it 'is successfull' do
+      expect(subject.success?).to be_true
+    end
+  end
+
 
     describe '#before' do 
 

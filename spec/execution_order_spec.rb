@@ -36,5 +36,4 @@ describe UseCase::ExecutionOrder do
       expect(UseCase::ExecutionOrder.run(EOCreate)).to eql([EORepeatedSMS, EOAlert, EORepeatedSMS, EOCreate])
     end
   end
-
 end

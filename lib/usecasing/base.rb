@@ -35,7 +35,7 @@ module UseCase
         ctx = Context.new(context)
         executed = []
         execution_order.each do |usecase|
-          break unless ctx.success?
+          break if !ctx.success? || ctx.stopped?
           executed.push(usecase)
           yield usecase, ctx
         end
@@ -65,6 +65,10 @@ module UseCase
     def before;  end
     def perform;  end
     def rollback; end
+
+    def stop!
+      context.stop! 
+    end
 
     def failure(key, value)
       @context.failure(key, value)
