@@ -5,7 +5,7 @@ module UseCase
     class Errors
 
       def initialize
-        @errors = Hash.new { |h,k| h[k.to_sym] = [] }
+        @errors = Hash.new
       end
 
       def all(delimiter= ", ", &block)
@@ -22,6 +22,7 @@ module UseCase
       end
 
       def push(key, value)
+        @errors[key.to_sym] = [] unless @errors[key.to_sym]
         @errors[key.to_sym].push(value)
       end
 

@@ -101,5 +101,14 @@ describe UseCase::Context do
     expect(errors_keys).to eql([:error_1, :error_2])
     expect(errors_values).to eql([["this is the first error"], ["this is a second error"]])
   end
+
+  # https://github.com/tdantas/usecasing/issues/4
+  it "does not mark failure when access key that does not exist" do 
+    ctx = described_class.new
+    expect(ctx.success?).to be_true
+    ctx[:key]
+    expect(ctx.success?).to be_true
+  end
+
 end
 
