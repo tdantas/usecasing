@@ -6,7 +6,7 @@
 [![Build Status](https://secure.travis-ci.org/tdantas/usecasing.png)](http://travis-ci.org/tdantas/usecasing)
 [![Dependency Status](https://gemnasium.com/tdantas/usecasing.svg)](https://gemnasium.com/tdantas/usecasing)
 [![Coverage Status](https://coveralls.io/repos/tdantas/usecasing/badge.png)](https://coveralls.io/r/tdantas/usecasing)
-
+[![Gem Version](https://badge.fury.io/rb/usecasing.svg)](http://badge.fury.io/rb/usecasing)
 Add this line to your application's Gemfile:
 
   	gem 'usecasing'
