@@ -1,5 +1,6 @@
 require 'set'
 require 'tsort'
+require 'usecasing/configuration'
 
 module UseCase
 
@@ -39,26 +40,40 @@ module UseCase
       post_order(start_node, [])
     end
 
-    private
+  private
 
-    def self.post_order(use_case_class, result, dependent_node_ids = [])
-      # push node id to group ids
-      dependent_node_ids.push(use_case_class.__id__)
+    class << self
+      def post_order(use_case_class, result, dependent_node_ids = [])
+        # push node id to group ids
+        dependent_node_ids.push(use_case_class.__id__)
 
-      if use_case_class.instance_method(:before).owner != Base
-        # only set before method in execution path if it's overridden
+        if ::UseCase.configuration.before_depends
+          post_before use_case_class, result, dependent_node_ids
+          post_dependencies use_case_class, result, dependent_node_ids
+        else
+          post_dependencies use_case_class, result, dependent_node_ids
+          post_before use_case_class, result, dependent_node_ids
+        end
+
+        # push perform method
         result.push \
-          ExecutionNode.new(dependent_node_ids, use_case_class, :before)
+          ExecutionNode.new(dependent_node_ids, use_case_class, :perform)
       end
 
-      # parse dependencies use_cases
-      use_case_class.dependencies.each do |dependency_use_case|
-        post_order(dependency_use_case, result, dependent_node_ids.dup)
+      def post_dependencies(use_case_class, result, dependent_node_ids)
+        # parse dependencies use_cases
+        use_case_class.dependencies.each do |dependency_use_case|
+          post_order(dependency_use_case, result, dependent_node_ids.dup)
+        end
       end
 
-      # push perform method
-      result.push \
-        ExecutionNode.new(dependent_node_ids, use_case_class, :perform)
+      def post_before(use_case_class, result, dependent_node_ids)
+        if use_case_class.instance_method(:before).owner != Base
+          # only set before method in execution path if it's overridden
+          result.push \
+            ExecutionNode.new(dependent_node_ids, use_case_class, :before)
+        end
+      end
     end
   end
 

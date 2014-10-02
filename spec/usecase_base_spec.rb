@@ -379,35 +379,40 @@ describe UseCase::Base do
 
   describe '#skip!' do
     context 'given a usecase that defines a #before and #perform and is dependent on another usecase' do
-      context 'when skip! is invoked in #before' do
-        before { @context = SkipCase1.perform(array: []) }
+      context 'configured with execution order before->depends->perform (before_depends = true)' do
+        before { UseCase.configure { |c| c.before_depends = true } }
+        after { UseCase.reset_configuration }
 
-        it 'runs code in #before' do
-          expect(@context.array[0]).to eq('SkipCase1#before')
+        context 'when skip! is invoked in #before' do
+          before { @context = SkipCase1.perform(array: []) }
+
+          it 'runs code in #before' do
+            expect(@context.array[0]).to eq('SkipCase1#before')
+          end
+
+          it 'it does not run any #befores and #performs in current usecase and dependent usecase' do
+            expect(@context.array.count).to eq(1)
+          end
         end
 
-        it 'it does not run any #befores and #performs in current usecase and dependent usecase' do
-          expect(@context.array.count).to eq(1)
-        end
-      end
+        context 'when skip! is invoked in #before in dependent usecase' do
+          before { @context = SkipCase2.perform(array: []) }
 
-      context 'when skip! is invoked in #before in dependent usecase' do
-        before { @context = SkipCase2.perform(array: []) }
+          it 'executes #before of usecase' do
+            expect(@context.array).to include('SkipCase2#before')
+          end
 
-        it 'executes #before of usecase' do
-          expect(@context.array).to include('SkipCase2#before')
-        end
+          it 'executes #perform of usecase' do
+            expect(@context.array).to include('SkipCase2#perform')
+          end
 
-        it 'executes #perform of usecase' do
-          expect(@context.array).to include('SkipCase2#perform')
-        end
+          it 'runs code in dependent usecases #before' do
+            expect(@context.array).to include('DependentCase#before')
+          end
 
-        it 'runs code in dependent usecases #before' do
-          expect(@context.array).to include('DependentCase#before')
-        end
-
-        it 'does not run neither #perform nor dependent usecases of dependent usecase' do
-          expect(@context.array.count).to eq(3)
+          it 'does not run neither #perform nor dependent usecases of dependent usecase' do
+            expect(@context.array.count).to eq(3)
+          end
         end
       end
     end
@@ -437,22 +442,27 @@ describe UseCase::Base do
 
   describe 'invocation order' do
     context 'given a usecase that defines a before and perform and dependent on another usecase' do
-      before { @context = InvocationOrderCase.perform(array: []) }
+      context 'configured with execution order before->depends->perform (before_depends = true)' do
+        before { UseCase.configure { |c| c.before_depends = true } }
+        after { UseCase.reset_configuration }
 
-      it '#before in usecase invoked first' do
-        expect(@context.array[0]).to eq('InvocationOrderCase#before')
-      end
+        before { @context = InvocationOrderCase.perform(array: []) }
 
-      it '#before in dependent usecases is invoked second' do
-        expect(@context.array[1]).to eq('DependentCase#before')
-      end
+        it '#before in usecase invoked first' do
+          expect(@context.array[0]).to eq('InvocationOrderCase#before')
+        end
 
-      it '#perform in dependent usecase is invoked third' do
-        expect(@context.array[2]).to eq('DependentCase#perform')
-      end
+        it '#before in dependent usecases is invoked second' do
+          expect(@context.array[1]).to eq('DependentCase#before')
+        end
 
-      it '#perform in usecase is invoked last' do
-        expect(@context.array[3]).to eq('InvocationOrderCase#perform')
+        it '#perform in dependent usecase is invoked third' do
+          expect(@context.array[2]).to eq('DependentCase#perform')
+        end
+
+        it '#perform in usecase is invoked last' do
+          expect(@context.array[3]).to eq('InvocationOrderCase#perform')
+        end
       end
     end
   end
