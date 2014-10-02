@@ -36,12 +36,17 @@ module UseCase
 
     end
 
-    attr_accessor :errors
+    attr_accessor :errors, :executed, :skipped_node_ids
 
     def initialize(param = {})
-      raise ArgumentError.new('Must be a Hash or other Context') unless (param.is_a? ::Hash) || (param.is_a? Context) 
+      unless (param.is_a? ::Hash) || (param.is_a? Context)
+        raise ArgumentError.new('Must be a Hash or other Context')
+      end
+
       @values = symbolyze_keys(param.to_hash)
       @errors = Errors.new
+      @executed         = []
+      @skipped_node_ids = []
     end
 
     def to_hash
