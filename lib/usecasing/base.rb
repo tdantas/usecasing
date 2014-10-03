@@ -1,3 +1,5 @@
+require 'forwardable'
+
 module UseCase
 
   module BaseClassMethod
@@ -7,6 +9,24 @@ module UseCase
     end
 
     module ClassMethods
+
+      include Forwardable
+
+      def context_accessor(*args)
+        args = args.reduce([]) { |array, arg| array.concat([arg, "#{arg}="]); array }
+
+        def_delegators :context, *args
+      end
+
+      def context_writer(*args)
+        args = args.reduce([]) { |array, val| array << "#{val}="; array }
+
+        def_delegators :context, *args
+      end
+
+      def context_reader(*args)
+        def_delegators :context, *args
+      end
 
       def depends(*deps)
         @dependencies ||= []
@@ -20,27 +40,31 @@ module UseCase
       end
 
       def perform(ctx = { })
-        tx(ExecutionOrder.run(self), ctx) do |usecase, context|
-          instance = usecase.new(context)
-          instance.tap do | me |
-            me.before
-            me.perform
-          end 
+        (ctx.is_a?(Context) ? ctx : Context.new(ctx)).tap do |context|
+          execution_nodes = ExecutionOrder.run(self)
+
+          execution_nodes.each do |execution_node|
+            break if !context.success? || context.stopped?
+
+            next unless execute_node?(execution_node, context.skipped_node_ids)
+
+            execution_node.execute(context)
+
+            if execution_node.skipped?
+              context.skipped_node_ids << execution_node.node_id
+            elsif execution_node.for_rollback?
+              context.executed.push(execution_node.use_case_class)
+            end
+          end
+
+          rollback(context.executed, context) unless context.success?
         end
       end
 
       private
 
-      def tx(execution_order, context)
-        ctx = Context.new(context)
-        executed = []
-        execution_order.each do |usecase|
-          break if !ctx.success? || ctx.stopped?
-          executed.push(usecase)
-          yield usecase, ctx
-        end
-        rollback(executed, ctx) unless ctx.success?
-        ctx
+      def execute_node?(execution_node, skipped_node_ids)
+        (execution_node.dependent_node_ids & skipped_node_ids).empty?
       end
 
       def rollback(execution_order, context)
@@ -67,12 +91,20 @@ module UseCase
     def rollback; end
 
     def stop!
-      context.stop! 
+      context.stop!
     end
 
     def failure(key, value)
       @context.failure(key, value)
     end
-    
+
+    def skip!
+      @skip_use_case = true
+    end
+
+    def invoke!(*use_cases)
+      use_cases.each { |use_case| use_case.perform(context) }
+    end
+
   end
 end
