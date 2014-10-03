@@ -53,7 +53,7 @@ module UseCase
       @values[method]
     end
 
-    def respond_to?(method)
+    def respond_to?(method, include_all = false)
       @values.keys.include?(method.to_sym)
     end
 
