@@ -25,14 +25,14 @@ module UseCase
           instance.tap do | me |
             me.before
             me.perform
-          end 
+          end
         end
       end
 
       private
 
       def tx(execution_order, context)
-        ctx = Context.new(context)
+        ctx = (context.is_a?(Context) ? context : Context.new(context))
         executed = []
         execution_order.each do |usecase|
           break if !ctx.success? || ctx.stopped?
@@ -67,12 +67,12 @@ module UseCase
     def rollback; end
 
     def stop!
-      context.stop! 
+      context.stop!
     end
 
     def failure(key, value)
       @context.failure(key, value)
     end
-    
+
   end
 end
