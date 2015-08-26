@@ -13,6 +13,15 @@ module UseCase
         @dependencies.push(*deps)
       end
 
+      def no_rollback_on_failure
+        @rollback_on_failure = false
+      end
+
+      def rollback_on_failure?
+        @rollback_on_failure = true if @rollback_on_failure.nil?
+        @rollback_on_failure
+      end
+
       def dependencies
         return [] unless superclass.ancestors.include? UseCase::Base
         value = (@dependencies && @dependencies.dup || []).concat(superclass.dependencies)
@@ -34,12 +43,14 @@ module UseCase
       def tx(execution_order, context)
         ctx = (context.is_a?(Context) ? context : Context.new(context))
         executed = []
+        no_rollback = false
         execution_order.each do |usecase|
           break if !ctx.success? || ctx.stopped?
+          no_rollback = !usecase.rollback_on_failure?
           executed.push(usecase)
           yield usecase, ctx
         end
-        rollback(executed, ctx) unless ctx.success?
+        rollback(executed, ctx) unless ctx.success? || no_rollback
         ctx
       end
 
