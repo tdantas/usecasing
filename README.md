@@ -83,7 +83,7 @@ This is what we call context, the usecase context will be shared between all cha
 			# we could do that in one before_filter
 			invoice = @user.invoices.find(context.invoice_id)
 			
-			# asign to the context make available to all chain
+			# assign to the context make available to all chain
 			context.invoice = invoice
 			   
 		end
