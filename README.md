@@ -75,7 +75,7 @@ This is what we call context, the usecase context will be shared between all cha
 	class FindInvoice < UseCase::Base
 	
 		def before
-			@user = context.curent_user
+			@user = context.current_user
 		end
 		
 		def perform
