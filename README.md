@@ -53,7 +53,7 @@ Let's build a controller
 Ok, What is FinalizeInvoiceUseCase ?
 
 FinalizeInvoiceUseCase will be responsible for perform the Use Case/Story.  
-Each usecase should satisfy the [Single Responsability Principle](http://en.wikipedia.org/wiki/Single_responsibility_principle) and to achieve this principle, one usecase depends of others usecases building a Chain of Resposability.
+Each usecase should satisfy the [Single Responsibility Principle](http://en.wikipedia.org/wiki/Single_responsibility_principle) and to achieve this principle, one usecase depends of others usecases building a Chain of Resposibility.
 
 
 ````
@@ -197,7 +197,7 @@ Let me know what do you think about it.
 	  end
 	  
 	  def perform
-	    # execute the responsability that you want
+	    # execute the responsibility that you want
 	  end
 	  
 	  def rollback
