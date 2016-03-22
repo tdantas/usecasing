@@ -276,6 +276,31 @@ describe UseCase::Base do
 
     end
 
+    it 'does not rollback if the failed case is no_rollback_on_failure' do
+      
+      UseCaseWithRollback = Class.new(UseCase::Base) do
+
+        def rollback
+          context.rollback_executed = 'true'
+        end
+
+      end
+
+      UseCaseNoRollbackOnFailureWichFails = Class.new(UseCase::Base) do
+
+        depends UseCaseWithRollback
+        
+        no_rollback_on_failure
+
+        def perform
+          failure(:rollback, 'error')
+        end
+      end
+
+      context = UseCaseNoRollbackOnFailureWichFails.perform
+      expect(context.rollback_executed).to_not eq('true')
+    end
+
   end
 
   context 'stopping the flow' do
