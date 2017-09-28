@@ -8,6 +8,11 @@ module UseCase
 
     module ClassMethods
 
+      def required_params(*params)
+        @parameters ||= []
+        @parameters.push(*params)
+      end
+
       def depends(*deps)
         @dependencies ||= []
         @dependencies.push(*deps)
@@ -23,6 +28,7 @@ module UseCase
         tx(ExecutionOrder.run(self), ctx) do |usecase, context|
           instance = usecase.new(context)
           instance.tap do | me |
+            me.context_params(@parameters)
             me.before
             me.perform
           end
@@ -60,6 +66,14 @@ module UseCase
     attr_reader :context
     def initialize(context)
       @context = context
+    end
+
+    def context_params(parameters)
+      unless parameters.nil?
+        parameters.each do |param|
+          instance_variable_set("@#{param}", @context.send(param))
+        end
+      end
     end
 
     def before;  end

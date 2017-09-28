@@ -51,7 +51,7 @@ describe UseCase::ExecutionOrder do
         end
       end
 
-      expect(FirstUseCase.perform.second).to eq (
+      expect(FirstUseCase.perform.second).to eq(
         'The quick brown fox jumps over the lazy dog')
 
     end

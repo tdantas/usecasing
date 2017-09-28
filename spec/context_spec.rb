@@ -105,9 +105,9 @@ describe UseCase::Context do
   # https://github.com/tdantas/usecasing/issues/4
   it "does not mark failure when access key that does not exist" do 
     ctx = described_class.new
-    expect(ctx.success?).to be_true
+    expect(ctx.success?).to be true
     ctx[:key]
-    expect(ctx.success?).to be_true
+    expect(ctx.success?).to be true
   end
 
 end

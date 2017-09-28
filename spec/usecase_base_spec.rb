@@ -40,6 +40,22 @@ describe UseCase::Base do
 
   end
 
+  context "required_params" do
+
+    it 'initialize withoud any parameters' do
+      AppUseCaseInitialize = Class.new(UseCase::Base)
+      expect(AppUseCaseInitialize.required_params).to be_empty
+    end
+
+    it 'adds one parameter to usecase' do
+      AppUseCase = Class.new(UseCase::Base) do
+        required_params :param
+      end
+
+      expect(AppUseCase.required_params.count).to eq 1
+    end
+  end
+
 
   context '##perform' do 
 
@@ -64,6 +80,19 @@ describe UseCase::Base do
       ctx = SendEmailUseCase.perform({email: 'thiago.teixeira.dantas@gmail.com' })
       expect(ctx.sent).to eql('sent')
       expect(ctx.email).to eql('thiago.teixeira.dantas@gmail.com')
+    end
+
+    it 'receives a hash and return it' do
+
+      SendNameUseCase = Class.new(UseCase::Base) do
+        required_params :name
+
+        def perform
+          context.test_name = @name
+        end
+      end
+      ctx = SendNameUseCase.perform({name: 'Paul'})
+      expect(ctx.test_name).to eq('Paul')
     end
 
     it 'raises exception when params is neither context or a hash' do 
@@ -178,7 +207,7 @@ describe UseCase::Base do
       end
       ctx = UseCase::Context.new
       InstanceUseCase.new(ctx).perform
-      expect(ctx.executed).to be_true
+      expect(ctx.executed).to be true
     end 
   end
 
@@ -314,7 +343,7 @@ describe UseCase::Base do
     end
 
     it 'is successfull' do
-      expect(subject.success?).to be_true
+      expect(subject.success?).to be true
     end
   end
 
