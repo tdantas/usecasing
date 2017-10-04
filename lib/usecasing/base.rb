@@ -7,7 +7,6 @@ module UseCase
     end
 
     module ClassMethods
-
       def required_params(*params)
         @parameters ||= []
         @parameters.push(*params)
@@ -28,7 +27,7 @@ module UseCase
         tx(ExecutionOrder.run(self), ctx) do |usecase, context|
           instance = usecase.new(context)
           instance.tap do | me |
-            me.context_params(@parameters)
+            me.required_params
             me.before
             me.perform
           end
@@ -68,12 +67,8 @@ module UseCase
       @context = context
     end
 
-    def context_params(parameters)
-      unless parameters.nil?
-        parameters.each do |param|
-          instance_variable_set("@#{param}", @context.send(param))
-        end
-      end
+    def required_params
+      self.class.required_params.each {|param| instance_variable_set("@#{param}", @context.send(param))}
     end
 
     def before;  end
@@ -87,6 +82,5 @@ module UseCase
     def failure(key, value)
       @context.failure(key, value)
     end
-
   end
 end
