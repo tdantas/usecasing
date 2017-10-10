@@ -54,6 +54,16 @@ describe UseCase::Base do
 
       expect(AppUseCase.required_params.count).to eq 1
     end
+
+    it 'includes params from the superclasses' do
+      AppUseCase = Class.new(UseCase::Base) do
+        required_params :param
+      end
+      UseCaseSubClass = Class.new(AppUseCase)
+
+      expect(UseCaseSubClass.required_params).to eql([:param])
+
+    end
   end
 
 
@@ -114,7 +124,7 @@ describe UseCase::Base do
       pending
     end
 
-    it 'fail when usecase register failure' do 
+    it 'fail  when usecase register failure' do
       pending
     end
 

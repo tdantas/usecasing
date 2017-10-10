@@ -10,6 +10,11 @@ module UseCase
       def required_params(*params)
         @parameters ||= []
         @parameters.push(*params)
+        parameters
+      end
+
+      def parameters
+        concat_superclass_variable('parameters')
       end
 
       def depends(*deps)
@@ -18,9 +23,7 @@ module UseCase
       end
 
       def dependencies
-        return [] unless superclass.ancestors.include? UseCase::Base
-        value = (@dependencies && @dependencies.dup || []).concat(superclass.dependencies)
-        value
+        concat_superclass_variable('dependencies')
       end
 
       def perform(ctx = { })
@@ -28,6 +31,7 @@ module UseCase
           instance = usecase.new(context)
           instance.tap do | me |
             me.required_params
+            puts self
             me.before
             me.perform
           end
@@ -35,6 +39,13 @@ module UseCase
       end
 
       private
+
+      def concat_superclass_variable(variable)
+        return [] unless superclass.ancestors.include? UseCase::Base
+        value = instance_variable_get("@#{variable}")
+        value = (value && value.dup || []).concat(superclass.send(variable))
+        value
+      end
 
       def tx(execution_order, context)
         ctx = (context.is_a?(Context) ? context : Context.new(context))
