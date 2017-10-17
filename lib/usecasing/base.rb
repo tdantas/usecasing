@@ -8,13 +8,7 @@ module UseCase
 
     module ClassMethods
       def required_params(*params)
-        @parameters ||= []
-        @parameters.push(*params)
-        parameters
-      end
-
-      def parameters
-        concat_superclass_variable('parameters')
+        @parameters ||= ((superclass.required_params.dup if superclass.respond_to?(:required_params)) || []).push(*params)
       end
 
       def depends(*deps)
@@ -23,7 +17,9 @@ module UseCase
       end
 
       def dependencies
-        concat_superclass_variable('dependencies')
+        return [] unless superclass.ancestors.include? UseCase::Base
+        value = (@dependencies && @dependencies.dup || []).concat(superclass.dependencies)
+        value
       end
 
       def perform(ctx = { })
@@ -31,7 +27,6 @@ module UseCase
           instance = usecase.new(context)
           instance.tap do | me |
             me.required_params
-            puts self
             me.before
             me.perform
           end
@@ -39,13 +34,6 @@ module UseCase
       end
 
       private
-
-      def concat_superclass_variable(variable)
-        return [] unless superclass.ancestors.include? UseCase::Base
-        value = instance_variable_get("@#{variable}")
-        value = (value && value.dup || []).concat(superclass.send(variable))
-        value
-      end
 
       def tx(execution_order, context)
         ctx = (context.is_a?(Context) ? context : Context.new(context))
@@ -79,7 +67,13 @@ module UseCase
     end
 
     def required_params
-      self.class.required_params.each {|param| instance_variable_set("@#{param}", @context.send(param))}
+      self.class.required_params.each do |param|
+        if context.to_hash.keys.include? param
+          instance_variable_set("@#{param}", @context.send(param))
+        else
+          raise ArgumentError.new("#{param} is not a context parameter")
+        end
+      end
     end
 
     def before;  end

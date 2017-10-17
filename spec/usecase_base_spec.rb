@@ -2,16 +2,16 @@ require 'spec_helper'
 
 describe UseCase::Base do
 
-  context "depends" do 
+  context 'depends' do
 
-    it 'initialize without any dependency' do 
+    it 'initialize without any dependency' do
       AppUseCaseInitialize = Class.new(UseCase::Base)
       expect(AppUseCaseInitialize.dependencies).to be_empty
     end
 
     it "adds usecase dependency" do
       AppOtherUseCase = Class.new
-      AppUseCase = Class.new(UseCase::Base) do 
+      AppUseCase = Class.new(UseCase::Base) do
         depends AppOtherUseCase
       end
 
@@ -22,12 +22,12 @@ describe UseCase::Base do
     it 'subclass adds dependency from subclass to superclass' do
 
       SuperClassDependency =  Class.new(UseCase::Base)
-      UseCaseSuperClass = Class.new(UseCase::Base) do 
+      UseCaseSuperClass = Class.new(UseCase::Base) do
         depends SuperClassDependency
       end
 
       SubClassDependency = Class.new(UseCase::Base)
-      UseCaseSubClass = Class.new(UseCaseSuperClass) do 
+      UseCaseSubClass = Class.new(UseCaseSuperClass) do
         depends SubClassDependency
       end
 
@@ -40,9 +40,8 @@ describe UseCase::Base do
 
   end
 
-  context "required_params" do
-
-    it 'initialize withoud any parameters' do
+  context 'required_params' do
+    it 'initializes without any parameters' do
       AppUseCaseInitialize = Class.new(UseCase::Base)
       expect(AppUseCaseInitialize.required_params).to be_empty
     end
@@ -60,17 +59,14 @@ describe UseCase::Base do
         required_params :param
       end
       UseCaseSubClass = Class.new(AppUseCase)
-
       expect(UseCaseSubClass.required_params).to eql([:param])
-
     end
   end
 
+  context '##perform' do
 
-  context '##perform' do 
-
-    it 'call instance #perform method' do 
-      AppUseCaseInstance = Class.new(UseCase::Base) do 
+    it 'call instance #perform method' do
+      AppUseCaseInstance = Class.new(UseCase::Base) do
         def perform
           #some business rule here
         end
@@ -79,9 +75,9 @@ describe UseCase::Base do
       AppUseCaseInstance.perform
     end
 
-    it 'receives a hash and create a execution context' do 
+    it 'receives a hash and create a execution context' do
 
-      SendEmailUseCase = Class.new(UseCase::Base) do 
+      SendEmailUseCase = Class.new(UseCase::Base) do
         def perform
           context.sent = 'sent'
         end
@@ -92,8 +88,15 @@ describe UseCase::Base do
       expect(ctx.email).to eql('thiago.teixeira.dantas@gmail.com')
     end
 
-    it 'receives a hash and return it' do
+    it 'recive a require_param that is not in the context' do
+      UseCaseApp = Class.new(UseCase::Base) do
+        required_params :name
+      end
 
+      expect{UseCaseApp.perform}.to raise_error(ArgumentError,"name is not a context parameter")
+    end
+
+    it 'receives a hash and return it' do
       SendNameUseCase = Class.new(UseCase::Base) do
         required_params :name
 
@@ -105,34 +108,34 @@ describe UseCase::Base do
       expect(ctx.test_name).to eq('Paul')
     end
 
-    it 'raises exception when params is neither context or a hash' do 
+    it 'raises exception when params is neither context or a hash' do
       UseCaseArgumentException = Class.new(UseCase::Base)
       expect{ UseCaseArgumentException.perform(Object.new) }.to raise_error(ArgumentError)
     end
 
-    it 'accepts a hash' do 
+    it 'accepts a hash' do
       UseCaseArgumentHash = Class.new(UseCase::Base)
       expect{ UseCaseArgumentHash.perform({}) }.not_to raise_error
     end
 
-    it 'accepts other context' do 
+    it 'accepts other context' do
       UseCaseArgumentContext = Class.new(UseCase::Base)
       expect{ UseCaseArgumentContext.perform(UseCase::Context.new) }.not_to raise_error
     end
 
-    it 'with success when usecase do not register failure' do 
+    it 'with success when usecase do not register failure' do
       pending
     end
 
-    it 'fail  when usecase register failure' do
+    it 'fail when usecase register failure' do
       pending
     end
 
 
-    it 'detects cyclic' do 
+    it 'detects cyclic' do
 
-      CyclicFirst = Class.new(UseCase::Base) 
-      CyclicSecond = Class.new(UseCase::Base) do 
+      CyclicFirst = Class.new(UseCase::Base)
+      CyclicSecond = Class.new(UseCase::Base) do
         depends CyclicFirst
       end
 
@@ -140,32 +143,32 @@ describe UseCase::Base do
         depends CyclicSecond
       end
 
-      FinalUseCase = Class.new(UseCase::Base) do 
+      FinalUseCase = Class.new(UseCase::Base) do
         depends CyclicSecond
       end
 
       expect { FinalUseCase.perform }.to raise_error(StandardError, /cyclic detected/)
 
     end
-   
+
   end
 
-  context '##perfoms execution chain' do 
+  context '##perfoms execution chain' do
     it 'executes in lexical order cascading context among usecases' do
-      
-      FirstUseCase = Class.new(UseCase::Base) do 
+
+      FirstUseCase = Class.new(UseCase::Base) do
         def perform
           context.first = context.first_arg
         end
       end
-      
-      SecondUseCase = Class.new(UseCase::Base) do 
+
+      SecondUseCase = Class.new(UseCase::Base) do
         def perform
           context.second = context.second_arg
         end
-      end 
+      end
 
-      UseCaseChain = Class.new(UseCase::Base) do 
+      UseCaseChain = Class.new(UseCase::Base) do
         depends FirstUseCase, SecondUseCase
       end
 
@@ -175,16 +178,16 @@ describe UseCase::Base do
     end
 
 
-    it 'stops the flow when failure happen' do 
+    it 'stops the flow when failure happen' do
 
-      FirstUseCaseFailure = Class.new(UseCase::Base) do 
+      FirstUseCaseFailure = Class.new(UseCase::Base) do
         def perform
           context.first = context.first_arg
         end
       end
-      
-      SecondUseCaseFailure = Class.new(UseCase::Base) do 
-        
+
+      SecondUseCaseFailure = Class.new(UseCase::Base) do
+
         def perform
           context.second = context.second_arg
           failure(:second, 'next will not be called')
@@ -192,7 +195,7 @@ describe UseCase::Base do
 
       end
 
-      ThirdUseCaseFailure = Class.new(UseCase::Base) do 
+      ThirdUseCaseFailure = Class.new(UseCase::Base) do
         def perform
           context.third = true
         end
@@ -204,13 +207,13 @@ describe UseCase::Base do
 
       ThirdUseCaseFailure.any_instance.expects(:perform).never
       UseCaseFailure.perform
-      
+
     end
   end
 
   context '#perform' do
-    it 'receive an Context instance' do 
-      InstanceUseCase = Class.new(UseCase::Base) do 
+    it 'receive an Context instance' do
+      InstanceUseCase = Class.new(UseCase::Base) do
         def perform
           context.executed = true
         end
@@ -218,9 +221,8 @@ describe UseCase::Base do
       ctx = UseCase::Context.new
       InstanceUseCase.new(ctx).perform
       expect(ctx.executed).to be true
-    end 
+    end
   end
-
 
   context 'rolling back the flow' do
 
@@ -245,8 +247,8 @@ describe UseCase::Base do
 
     it 'in reverse order of execution' do
       order = 0
-      
-      UseCaseWithRollbackOrderDepdens = Class.new(UseCase::Base) do 
+
+      UseCaseWithRollbackOrderDepdens = Class.new(UseCase::Base) do
         define_method :rollback do
           order += 1
           context.first_rollback = order
@@ -261,7 +263,7 @@ describe UseCase::Base do
           failure(:rollback, 'error')
         end
 
-        define_method :rollback do 
+        define_method :rollback do
           order += 1
           context.second_rollback = order
         end
@@ -273,8 +275,8 @@ describe UseCase::Base do
     end
 
 
-    it 'only rollbacks usecase that ran' do 
-      
+    it 'only rollbacks usecase that ran' do
+
       UseCaseFailRanThird = Class.new(UseCase::Base) do
 
         def rollback
@@ -283,15 +285,15 @@ describe UseCase::Base do
 
       end
 
-      UseCaseFailRanSecond = Class.new(UseCase::Base) do 
-        
+      UseCaseFailRanSecond = Class.new(UseCase::Base) do
+
         def rollback
           context.rollback_second = 'true_2'
         end
 
-      end      
+      end
 
-      UseCaseFailRanFirst = Class.new(UseCase::Base) do 
+      UseCaseFailRanFirst = Class.new(UseCase::Base) do
         depends UseCaseFailRanSecond
 
         def perform
@@ -319,13 +321,13 @@ describe UseCase::Base do
 
   context 'stopping the flow' do
 
-    FirstCase = Class.new(UseCase::Base) do 
+    FirstCase = Class.new(UseCase::Base) do
       def perform
         context.wizzard_name = "Gandalf"
       end
     end
 
-    StopCase = Class.new(UseCase::Base) do 
+    StopCase = Class.new(UseCase::Base) do
       def perform
         context.result = "YOUUUU SHHHAAALLLL NOOOTTTT PASSSSSS!"
         stop!
@@ -335,10 +337,10 @@ describe UseCase::Base do
     UnachievableCase = Class.new(UseCase::Base) do
       def perform
         context.result = "Still here! Muahaha!"
-      end 
+      end
     end
 
-    Base = Class.new(UseCase::Base) do 
+    Base = Class.new(UseCase::Base) do
       depends FirstCase, StopCase, UnachievableCase
     end
 
@@ -357,26 +359,24 @@ describe UseCase::Base do
     end
   end
 
+  describe '#before' do
 
-    describe '#before' do 
+    it 'calls "before" method before perform' do
+      BeforeUsecasing = Class.new(UseCase::Base) do
 
-      it 'calls "before" method before perform' do
-        BeforeUsecasing = Class.new(UseCase::Base) do 
-          
-          def before
-            context.before = true
-          end
-
-          def perform
-             raise 'Should be called' unless context.before
-          end
+        def before
+          context.before = true
         end
 
-        expected = BeforeUsecasing.perform
-        expect(expected.before).to eql(true)
-
+        def perform
+          raise 'Should be called' unless context.before
+        end
       end
-      
+
+      expected = BeforeUsecasing.perform
+      expect(expected.before).to eql(true)
+
     end
 
+  end
 end
